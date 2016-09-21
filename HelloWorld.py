@@ -4,7 +4,7 @@ class HelloWorld(object):
 
     def __init__(self, age):
         self.__age = age
-        print("Hello World")
+        print("Hello Wooooorld")
 
     def getAge(self):
         return self.__age
