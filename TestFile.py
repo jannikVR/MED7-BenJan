@@ -1,5 +1,6 @@
 import numpy as np
 from HelloWorld import HelloWorld
+from testClass import FuckLand
 
 print(np.maximum(5, 15000/763))
 
@@ -11,3 +12,7 @@ print("Jan is so confused")
 
 a = HelloWorld()
 print(a.getAge())
+
+b = FuckLand()
+
+print(b.getNrFive())
