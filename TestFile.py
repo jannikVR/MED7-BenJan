@@ -11,3 +11,7 @@ print("Jan is so confused")
 
 a = HelloWorld.HelloWorld(24)
 print(a.getAge())
+
+b = FuckLand()
+
+print(b.getNrFive())
