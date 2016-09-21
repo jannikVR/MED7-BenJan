@@ -1,5 +1,6 @@
 import numpy as np
 import HelloWorld
+from testClass import FuckLand
 
 print(np.maximum(5, 15000/763))
 
