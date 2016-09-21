@@ -1,6 +1,11 @@
 class HelloWorld(object):
-    def __init__(self):
+
+    __age = 0
+
+    def __init__(self, age):
+        self.__age = age
         print("Hello World")
 
     def getAge(self):
-        return 18
+        return self.__age
+    

@@ -1,5 +1,5 @@
 import numpy as np
-from HelloWorld import HelloWorld
+import HelloWorld
 
 print(np.maximum(5, 15000/763))
 
@@ -9,5 +9,5 @@ print("It's pulling")
 
 print("Jan is so confused")
 
-a = HelloWorld()
+a = HelloWorld.HelloWorld(24)
 print(a.getAge())
