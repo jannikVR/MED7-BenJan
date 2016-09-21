@@ -4,4 +4,4 @@ print(np.maximum(5,7))
 
 print("Kom nu")
 
-print("Ja Ja!")
+print("It's pulling")
