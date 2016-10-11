@@ -48,7 +48,7 @@ for episode in range(100000):
         averageReward = 0
 
     for step in range(200):
-        if render: env.render()
+        env.render()
 
         #oldOldObs = oldObs
         oldObs = obs
@@ -71,9 +71,9 @@ for episode in range(100000):
 
         a = round(float(np.argmax(rewardDelta)))
 
-        if done:
+        if done or step >= 199:
 
-            if (rewardSum > 195): learningRate *= 0.9
+            if (rewardSum > 195): learningRate = 0
 
             if rewardSum >= 195:
                 rewardStreak += 1
@@ -91,7 +91,7 @@ for episode in range(100000):
             if rewardSum > bestReward:
                 bestReward = rewardSum
 
-            if(episode % 50 == 0): print("End of episode " + str(episode) + "\n reward: " + str(rewardSum) + "\n Highest reward: " + str(bestReward) + "\n Learning rate: " + str(learningRate)
+            if(episode % 10 == 0): print("End of episode " + str(episode) + "\n reward: " + str(rewardSum) + "\n Highest reward: " + str(bestReward) + "\n Learning rate: " + str(learningRate)
                                          + "\n Reward streak: " + str(rewardStreak) + "\n Best reward streak: " + str(bestRewardStreak))
             break;
 
