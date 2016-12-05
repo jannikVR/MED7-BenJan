@@ -6,28 +6,13 @@ def sigmoid(xx, derivative = False):
         return xx * (1-xx)
     return 1 / (1+np.exp(-xx))
 
-# y = np.array([[4.],[2.],[6.],[1.],[5.],[3.],[7.],[10.],[14.],[9.],[13.],[20.],[18.],[22.],[17.],[21.],[19.],[23.]
-#             ,[28.], [26.], [30.], [25.], [29.], [27.], [31.], [8.], [16.], [0.]])
-#
-# x = np.array(
-#             [[0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 1, 1, 0], [0, 0, 0, 0, 1], [0, 0, 1, 0, 1], [0, 0, 0, 1, 1],
-#              [0, 0, 1, 1, 1], [0, 1, 0, 1, 0], [0, 1, 1, 1, 0], [0, 1, 0, 0, 1], [0, 1, 1, 0, 1]
-#                 , [1, 0, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 1, 0, 1], [1, 0, 0, 1, 1],
-#              [1, 0, 1, 1, 1]
-#                 , [1, 1, 1, 0, 0], [1, 1, 0, 1, 0], [1, 1, 1, 1, 0], [1, 1, 0, 0, 1], [1, 1, 1, 0, 1], [1, 1, 0, 1, 1],
-#              [1, 1, 1, 1, 1], [0, 1, 0, 0, 0], [1, 0, 0, 0, 0],[0, 0, 0, 0, 0]
-#              ])
-
-
-# maxY = 1 #y.max(axis=0)+1
-# alphas = [0.1,0.5,1,2,5,10,50]
-# y = y / maxY
-
-np.random.seed(1)
 
 class NeuralNetwork():
 
     def __init__(self, numberOfDatasets, inputs, hiddenLayers, neuronsPrHiddenLayer, outputs):
+
+        np.random.seed(1)
+
         self.__nInputs = inputs
         self.__nOutputs = outputs
         self.__nHiddenLayers = hiddenLayers
@@ -53,9 +38,10 @@ class NeuralNetwork():
         self.__inputNeuronValues = inputData
         self.__outputData = outputData
 
-    def train(self, episodes, learningRate):
+    def train(self, episodes, learningRate, showError = False):
 
         oldEstTimeLeft = 0
+
 
         for episode in range(episodes):
 
@@ -92,18 +78,20 @@ class NeuralNetwork():
 
             self.__inputWeights += (np.dot(self.__inputNeuronValues.T,self.__inputDelta)) * learningRate
 
-            if (episode > 1000):
-                estTimeLeft = int((time.clock() * (episodes / episode)) - time.clock())
+            if(showError):
+                if (episode > 1000):
+                    estTimeLeft = int((time.clock() * (episodes / episode)) - time.clock())
 
-                if (abs(oldEstTimeLeft - estTimeLeft) >= 3):
-                    oldEstTimeLeft = estTimeLeft
-                    print("\n")
-                    print ("Est. time left: " + str(estTimeLeft) + " sec")
-                    if (self.__nHiddenLayers < 2):
-                        print ("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors))))
+                    if (abs(oldEstTimeLeft - estTimeLeft) >= 3):
+                        oldEstTimeLeft = estTimeLeft
+                        print("\n")
+                        print ("Est. time left: " + str(estTimeLeft) + " sec")
+                        if (self.__nHiddenLayers < 2):
+                            print ("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors))))
 
-                    else:
-                        print ("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors)) + np.mean(np.abs(self.__hiddenErrors))))
+                        else:
+                            print ("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors)) + np.mean(np.abs(self.__hiddenErrors))))
+
 
 
         return self.__outputNeuronValues
@@ -114,7 +102,6 @@ class NeuralNetwork():
         hiddenNeuronValues = np.zeros((self.__nHiddenLayers, nDatasets, self.__neuronsPrHiddenLayer), dtype=float)
         outputNeuronValues = np.zeros((nDatasets, self.__nOutputs), dtype=float)
 
-
         hiddenNeuronValues[0, :, :] = sigmoid(np.dot(data, self.__inputWeights))
 
         if (self.__nHiddenLayers > 1):
@@ -124,13 +111,23 @@ class NeuralNetwork():
 
         outputNeuronValues = sigmoid(
             np.dot(hiddenNeuronValues[self.__layers - 3, :, :], self.__outputWeights))
-        print ("SECOND: " + str(outputNeuronValues))
 
-#
-# nn = NeuralNetwork(x.shape[0],x.shape[1],1,4,1)
-#
-# nn.setData(x,y)
-#
-# nn.train(60000)
-#x = np.array([[0, 1, 0, 1, 1], [1, 1, 0, 0, 0]])
-#nn.test(x)
+    def feedForward(self, data):
+        nDatasets = data.shape[0]
+
+        self.__inputNeuronValues = np.zeros((nDatasets, self.__nInputs), dtype=float)
+        self.__hiddenNeuronValues = np.zeros((self.__nHiddenLayers, nDatasets, self.__neuronsPrHiddenLayer), dtype=float)
+        self.__outputNeuronValues = np.zeros((nDatasets, self.__nOutputs), dtype=float)
+
+        self.__inputNeuronValues = data
+
+        self.__hiddenNeuronValues[0, :, :] = sigmoid(np.dot(self.__inputNeuronValues, self.__inputWeights))
+
+        for i in range(1, self.__layers - 2):
+            self.__hiddenNeuronValues[i, :, :] = sigmoid(
+                np.dot(self.__hiddenNeuronValues[i - 1], self.__hiddenWeights[i - 1, :, :]))
+
+        self.__outputNeuronValues = sigmoid(
+            np.dot(self.__hiddenNeuronValues[self.__layers - 3, :, :], self.__outputWeights))
+
+        return self.__outputNeuronValues
