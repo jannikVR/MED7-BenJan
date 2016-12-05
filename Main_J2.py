@@ -1,4 +1,5 @@
 import NeuralNetwork
+import RecurrentNN
 import numpy as np
 import gym
 import time
@@ -13,20 +14,6 @@ print(env.observation_space)
 #Get new observations
 #Update Weights using reward and observertions and choose action
 
-action = [0]
-rewardDelta  = np.zeros((2))
-
-action[0] = env.action_space.sample()
-
-nn = NeuralNetwork.NeuralNetwork(1,5,3,12,1)
-
-state = np.zeros((1,5))
-
-
-
-env.reset()
-
-a = 0
 
 totalReward = 0
 bestReward = 0
@@ -36,6 +23,39 @@ averageReward = 0
 
 learningRate = 2
 learningRateMltiplier = 0.95
+
+action = [0]
+rewardDelta  = np.zeros((2))
+
+action[0] = env.action_space.sample()
+
+# nn = NeuralNetwork.NeuralNetwork(1,5,3,12,1)
+rnn = RecurrentNN.RecurrentNeuralNetwork(learningRate, 5, 15, 1, 5)
+
+state = np.zeros((1,5))
+
+
+
+
+env.reset()
+
+a = 0
+
+stateList = list()
+def AddStateToStateList(state):
+    maxSteps = 5
+    # create list
+
+    # add new state to list
+    stateList.append(state)
+    # remove oldest if above max
+    if stateList.__len__() > maxSteps:
+        del stateList[0]
+
+    # print(stateList)
+
+
+
 render = False
 
 for episode in range(100000):
@@ -53,26 +73,42 @@ for episode in range(100000):
     for step in range(200):
         # env.render()
 
-        ##oldOldObs = oldObs
-        #oldObs = obs
+
         obs, reward, done, info = env.step((a)) # take a random action
 
-        state[0,0:4] = obs
-        #state[0,5:9] = oldObs
-        #state[0,9:13] = oldOldObs
-
         if done: reward = -1
-
         averageReward += reward
-
         rewardSum += reward
+
+        AddStateToStateList(state)
+        AddStateToStateList(state)
+
+        state2 = np.zeros([2, 5])
+        state2[0] = stateList[0]
+        state2[1] = stateList[1]
+        rnn.Train(state2, reward)
+
+
+        state[0,0:4] = obs
+
+
+
+
+
 
         for i in range(2):
             state[0,4] = i
-            nn.setData(state,reward)
-            rewardDelta[i] = nn.train(1,learningRate)
+            # nn.setData(state,reward)
+            # rewardDelta[i] = nn.train(1,learningRate)
+            state2 = np.zeros([2,5])
+            state2[0] = stateList[0]
+            state2[1] = stateList[1]
+            rewardDelta[i], error = rnn.Forward(state2) # skal være to forskellige stateLists og så kun forward
+            print(rewardDelta[i])
+        a = round(float(np.argmax(rewardDelta))) # vælg den variabelpos med højest værdi
 
-        a = round(float(np.argmax(rewardDelta)))
+        state[0, 4] = a
+
 
         if done or step >= 199:
 
