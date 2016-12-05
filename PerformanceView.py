@@ -38,6 +38,7 @@ class PerformanceView():
         graphW = self.__screenSize[0]-self.__distFromEdge*2
         graphH = self.__screenSize[1]-self.__distFromEdge*5
         barWidth = 3
+        spaceBetweenBars = 6
         binSize = 100
         totalBins = int(maxEpisodes/binSize)+1
         binData = []
@@ -69,10 +70,10 @@ class PerformanceView():
                                               self.__screenSize[1] - self.__distFromEdge + 25])
 
                 if binData[attempt][bin] > 0:
-                    pygame.draw.rect(self.__screen, self.__graphCol[attempt], [self.__distFromEdge+bin*(graphW/totalBins)+(barWidth*attempt),
+                    pygame.draw.rect(self.__screen, self.__graphCol[attempt], [self.__distFromEdge+bin*(graphW/totalBins)+(spaceBetweenBars*attempt),
                                 self.__screenSize[1] - self.__distFromEdge, barWidth, -binData[attempt][bin]/maxFreq*graphH])
                     text = self.__font.render(str(binData[attempt][bin]), True, self.__graphCol[attempt])
-                    self.__screen.blit(text, [self.__distFromEdge+bin*(graphW/totalBins)+(barWidth*attempt),
+                    self.__screen.blit(text, [self.__distFromEdge+bin*(graphW/totalBins)+(spaceBetweenBars*attempt),
                                               ((self.__screenSize[1] - self.__distFromEdge) - binData[attempt][bin] / maxFreq * graphH) - 25])
 
             # pygame.draw.rect(self.__screen, self.__frontCol,

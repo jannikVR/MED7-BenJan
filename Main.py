@@ -45,16 +45,16 @@ render = False
 
 avgRewardLast100Episodes = []
 
-hiddenLayers = [2]
-neurons = [12,13,14,15,16]
-alpha = [2,2.5,3,3.5,4,4.5]
-alphaDecrease = [0.7,0.9,0.95,0.99,0.999,1]
+#hiddenLayers = [3,4]
+#neurons = [12,14,16]
+#alpha = [4,5]
+#alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
 
+hiddenLayers = [1,2,3]
+neurons = [2,4,8,14]
+alpha = [0.5,1,2,3,4,5]
+alphaDecrease = [0.7,0.9,0.99,0.999]
 
-hiddenLayers = [3,4]
-neurons = [12,14,16]
-alpha = [4,5]
-alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
 minAlpha = 0.0000001
 
 np.random.seed(1)
@@ -64,7 +64,7 @@ maxEpisodes = 2000
 saves = 0
 filenum = 0
 
-attempts = 2
+attempts = 10
 settingID = 0
 
 for h in hiddenLayers:
