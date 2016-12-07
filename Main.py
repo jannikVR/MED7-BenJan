@@ -5,6 +5,7 @@ import time
 from colorama import Fore
 import PerformanceView
 import pygame
+import random
 
 # pygame.init()
 # pygame.display.set_caption("Stats")
@@ -20,7 +21,8 @@ print(env.action_space)
 print(env.observation_space)
 
 action = [0]
-rewardDelta  = np.zeros((2))
+qvals  = np.zeros((2))
+newQvals  = np.zeros((2))
 
 action[0] = env.action_space.sample()
 
@@ -53,10 +55,10 @@ alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
 #alpha = [2.5,3,4,5,6]
 #alphaDecrease = [0.5,0.7,0.9,0.99,0.999,0.99999]
 
-hiddenLayers = [4,6]
-neurons = [16,20,24]
-alpha = [0.001,0.1,1,2,4,5,8]
-alphaDecrease = [0.1,0.5,0.7,0.9,0.999]
+hiddenLayers = [1,2,3,4,6]
+neurons = [5,6,7,8,12]
+alpha = [0.05,0.1,0.2,0.5,1]
+alphaDecrease = [0.7,0.8,0.9,0.99,0.999]
 
 minAlpha = 0.0000001
 
@@ -65,9 +67,10 @@ np.random.seed(1)
 maxEpisodes = 2000
 
 saves = 0
-filenum = 100
-attempts = 2
+filenum = 200
+attempts = 3
 settingID = 0
+discount = 0.1
 
 performanceDebug = True
 if(performanceDebug): performance = PerformanceView.PerformanceView((1200,600))
@@ -122,6 +125,7 @@ for h in hiddenLayers:
 
                     for episode in range(maxEpisodes+1):
                         obs = env.reset()
+                        state[0, 0:4] = obs
 
                         if episode % 500 == 0:
                             print("Episode: " + str(episode))
@@ -153,35 +157,71 @@ for h in hiddenLayers:
                         for step in range(200):
                             #env.render()
 
-                            #oldOldObs = oldObs
+                            # Feedforward current state and predict qval for all actions
+                            for i in range(2):
+                                state[0, 4] = i
+                                qvals[i] = nn.feedForward(state)
+
+                            #Determine action
+                            if(random.random() < 0.95):
+                                a = round(float(np.argmax(qvals)))
+                            else:
+                                a = round(random.random())
+
+                            # if (step == 1 and episode % 1000 == 0 and episode > 1):
+                            #     print(a)
+                            #     print(random.random())
+
+                            prevState = state
+
                             oldObs = obs
+                            #Move and get new state
                             obs, reward, done, info = env.step((a)) # take a random action
 
+                            if done: reward = -1
+
                             state[0,0:4] = obs
+
+                            #Feedforward new state and calculate max q.
+                            for i in range(2):
+                                state[0, 4] = i
+                                newQvals[i] = nn.feedForward(state)
+
+                            qMax = round(float(np.argmax(newQvals)))
+                            qTarget = reward + discount*qMax
+                            errorVector = qTarget - qvals[a]
+                            nn.setData(state, errorVector)
+                            error = nn.train(1, learningRate, showError=True)
+                            if(step % 100 == 0 and step > 1): print("Error: ", error)
 
                             #state[0,5:9] = oldObs
                             #state[0,9:13] = oldOldObs
 
-                            if done: reward = -1
+
 
                             #averageReward += reward
+
+
+
+
+
 
                             rewardSum += reward
 
                             #Train using previous action, previous state and new reward
-                            if(step > 0):
-                                state[0, 4] = a
-                                nn.setData(prevState, reward)
-
-                                error = nn.train(1, learningRate, showError=True)
-                                #if(step % 25 == 0): print("Error: ", error)
-
-                            for i in range(2):
-                                state[0,4] = i
-                                rewardDelta[i] = nn.feedForward(state)
-
-                            prevState = state
-                            a = round(float(np.argmax(rewardDelta)))
+                            # if(step > 0):
+                            #     state[0, 4] = a
+                            #     nn.setData(prevState, reward)
+                            #
+                            #     error = nn.train(1, learningRate, showError=True)
+                            #     #if(step % 25 == 0): print("Error: ", error)
+                            #
+                            # for i in range(2):
+                            #     state[0,4] = i
+                            #     qvals[i] = nn.feedForward(state)
+                            #
+                            # prevState = state
+                            # a = round(float(np.argmax(qvals)))
 
                             if done or step >= 199:
 
