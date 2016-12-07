@@ -30,8 +30,6 @@ state = np.zeros((1,inputs))
 
 env.reset()
 
-performance = PerformanceView.PerformanceView((1200,600))
-
 a = 0
 
 totalReward = 0
@@ -45,15 +43,20 @@ render = False
 
 avgRewardLast100Episodes = []
 
-#hiddenLayers = [3,4]
-#neurons = [12,14,16]
-#alpha = [4,5]
-#alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
+hiddenLayers = [3,4]
+neurons = [12,14,16]
+alpha = [4,5]
+alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
 
-hiddenLayers = [1,2,3]
-neurons = [2,4,8,14]
-alpha = [0.5,1,2,3,4,5]
-alphaDecrease = [0.7,0.9,0.99,0.999]
+#hiddenLayers = [2,3]
+#neurons = [4,6,8,10,12,14,16]
+#alpha = [2.5,3,4,5,6]
+#alphaDecrease = [0.5,0.7,0.9,0.99,0.999,0.99999]
+
+hiddenLayers = [4,6]
+neurons = [16,20,24]
+alpha = [0.001,0.1,1,2,4,5,8]
+alphaDecrease = [0.1,0.5,0.7,0.9,0.999]
 
 minAlpha = 0.0000001
 
@@ -62,10 +65,12 @@ np.random.seed(1)
 maxEpisodes = 2000
 
 saves = 0
-filenum = 0
-
-attempts = 10
+filenum = 100
+attempts = 2
 settingID = 0
+
+performanceDebug = True
+if(performanceDebug): performance = PerformanceView.PerformanceView((1200,600))
 
 for h in hiddenLayers:
 
@@ -102,17 +107,18 @@ for h in hiddenLayers:
                         saves += 1
                         settingID += 1
 
-                    if attempt > 0:
-                        if saves > 4:
-                            saves = 0
-                            filenum += 1
-                            performance.saveScreenshot("data_"+str(filenum))
-                            del performance
-                            performance = PerformanceView.PerformanceView((1200, 600))
+                    if performanceDebug:
+                        if attempt > 0:
+                            if saves > 4:
+                                saves = 0
+                                filenum += 1
+                                performance.saveScreenshot("data_"+str(filenum))
+                                del performance
+                                performance = PerformanceView.PerformanceView((1200, 600))
 
-                        performance.addPerformance(settingID, episodesToWin,settings)
+                            performance.addPerformance(settingID, episodesToWin,settings)
 
-                    performance.update(maxEpisodes,attempts)
+                        performance.update(maxEpisodes,attempts)
 
                     for episode in range(maxEpisodes+1):
                         obs = env.reset()
@@ -152,6 +158,7 @@ for h in hiddenLayers:
                             obs, reward, done, info = env.step((a)) # take a random action
 
                             state[0,0:4] = obs
+
                             #state[0,5:9] = oldObs
                             #state[0,9:13] = oldOldObs
 
@@ -161,14 +168,24 @@ for h in hiddenLayers:
 
                             rewardSum += reward
 
+                            #Train using previous action, previous state and new reward
+                            if(step > 0):
+                                state[0, 4] = a
+                                nn.setData(prevState, reward)
+
+                                error = nn.train(1, learningRate, showError=True)
+                                #if(step % 25 == 0): print("Error: ", error)
+
                             for i in range(2):
                                 state[0,4] = i
-                                nn.setData(state,reward)
-                                rewardDelta[i] = nn.train(1,learningRate)
+                                rewardDelta[i] = nn.feedForward(state)
 
+                            prevState = state
                             a = round(float(np.argmax(rewardDelta)))
 
                             if done or step >= 199:
+
+                                if step > 100: print("Total steps: ", step)
 
                                 episodesToWin = episode
 

@@ -92,9 +92,12 @@ class NeuralNetwork():
                         else:
                             print ("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors)) + np.mean(np.abs(self.__hiddenErrors))))
 
+                if (self.__nHiddenLayers < 2):
+                    return np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors))
 
-
-        return self.__outputNeuronValues
+                else:
+                    return np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors)) + np.mean(
+                            np.abs(self.__hiddenErrors))
 
     def test(self, data):
         nDatasets = data.shape[0]
