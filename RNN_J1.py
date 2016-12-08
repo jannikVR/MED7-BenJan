@@ -19,8 +19,9 @@ def sigmoid_output_to_derivative(output):
 class RecurrentNeuralNetwork():
 
 
-    def __init__(self, alpha, input_dim, hidden_dim, output_dim, n_steps):
+    def __init__(self, alpha, alphaDecrease, input_dim, hidden_dim, output_dim, n_steps):
         self.alpha = alpha
+        self.alphaDecrease = alphaDecrease
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
@@ -107,67 +108,18 @@ class RecurrentNeuralNetwork():
         self.synapse_1_update *= 0
         self.synapse_h_update *= 0
 
-    def RNNSendInData(self, input, actual):
-
-        # add input to matrix
-        self.savedInputs[:, self.n_steps - self.currStep-1] = input[0]
-
-        # add actual to matrix
-        self.savedActual[self.n_steps - self.currStep-1] = actual
-
-        # # generate input and output
-        # a = np.zeros([self.input_dim])
-        # for i in range(self.input_dim):
-        #     a[i] = self.savedInputs[i, self.currStep]
-        #
-        # X = np.array([a])
-        #
-        #
-
-        # output = self.ForwardAndChange(input)
-
-        if(self.currStep >= self.n_steps-1):
-            # print("saved")
-            # print(self.savedInputs)
-            # print()
-            # print(self.savedActual)
-
-            outOut, overallError = self.Train(self.savedInputs, self.savedActual) #train network with batch data
-
-            print("guess" + str(outOut))
-
-            out = 0  #print
-            for index, x in enumerate(reversed(outOut)):
-                out += x * pow(2, index)
-
-            print(" = " + str(out))
-            print("overallError" + str(overallError))
-
-            self.currStep = -1;   # reset to overwrite
-            self.savedInputs = np.zeros((self.input_dim, self.n_steps))
-            self.savedActual = np.zeros(self.n_steps)
-
-
-        self.currStep += 1;  # increase stepNr and check if end of batch
-
-        # return output;
 
 
 
-
-
-
-
-
-
-
-    def RNNSendInData2(self, inputI, actual):
+    def RNNSendInData(self, inputI, actual, alphaDecreaseB = False):
         # add input to matrix
         self.savedInputs[:, self.n_steps - self.currStep-1] = inputI[0]
 
         # add actual to matrix
         self.savedActual[self.n_steps - self.currStep-1] = actual
 
+        if alphaDecreaseB:
+            self.alpha *= self.alphaDecrease
 
         X = np.array(inputI)
         #
@@ -209,14 +161,14 @@ class RecurrentNeuralNetwork():
             self.SetWeights()
 
 
-            print("guess" + str(self.output))
+            # print("guess" + str(self.output))
 
             out = 0  #print
             for index, x in enumerate(reversed(self.output)):
                 out += x * pow(2, index)
 
-            print(" = " + str(out))
-            print("overallError" + str(self.overallError))
+            # print(" = " + str(out))
+            # print("overallError" + str(self.overallError))
 
             self.currStep = -1;   # reset to overwrite
             self.savedInputs = np.zeros((self.input_dim, self.n_steps))
@@ -224,6 +176,7 @@ class RecurrentNeuralNetwork():
             self.overallError = 0
 
         self.currStep += 1;  # increase stepNr and check if end of batch
+
 
         return output;
 

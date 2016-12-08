@@ -79,6 +79,9 @@ class NeuralNetwork():
             self.__inputWeights += (np.dot(self.__inputNeuronValues.T,self.__inputDelta)) * learningRate
 
             if(showError):
+                if (self.__nHiddenLayers < 2):
+                    print("Error:" + str(np.mean(np.abs(self.__outputErrors)) + np.mean(np.abs(self.__inputErrors))))
+
                 if (episode > 1000):
                     estTimeLeft = int((time.clock() * (episodes / episode)) - time.clock())
 

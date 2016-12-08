@@ -1,4 +1,4 @@
-import RNN_J1
+import NeuralNetwork
 import numpy as np
 import gym
 import time
@@ -14,8 +14,6 @@ import pygame
 # frameRate = 60
 # clock = pygame.time.Clock()
 
-
-
 env = gym.make('CartPole-v0')
 env.reset()
 print(env.action_space)
@@ -29,7 +27,6 @@ action[0] = env.action_space.sample()
 inputs = 5
 
 state = np.zeros((1,inputs))
-oldState = np.zeros((1,inputs))
 
 env.reset()
 
@@ -48,12 +45,16 @@ render = False
 
 avgRewardLast100Episodes = []
 
+#hiddenLayers = [3,4]
+#neurons = [12,14,16]
+#alpha = [4,5]
+#alphaDecrease = [0.85,0.9,0.95,.99,.999,0.999]
 
+hiddenLayers = [4,5,6]
+neurons = [2,4,8,14]
+alpha = [0.5,1,2,3,4,5]
+alphaDecrease = [0.7,0.9,0.99,0.999]
 
-hiddenLayers = [2]
-neurons = [6, 7, 8]
-alpha = [0.5, 4, 5.5, 6]
-alphaDecrease = [0.9995,0.999, 0.99, 0.95, 0.925]
 minAlpha = 0.0000001
 
 np.random.seed(1)
@@ -63,7 +64,7 @@ maxEpisodes = 2000
 saves = 0
 filenum = 0
 
-attempts = 2
+attempts = 10
 settingID = 0
 
 for h in hiddenLayers:
@@ -76,9 +77,7 @@ for h in hiddenLayers:
 
                 for attempt in range(attempts+1):
 
-                    # nn = NeuralNetwork.NeuralNetwork(1, inputs, h, n, 1)
-                    rnn = RNN_J1.RecurrentNeuralNetwork(alp, aD,inputs, n, 1, 2)
-
+                    nn = NeuralNetwork.NeuralNetwork(1, inputs, h, n, 1)
 
                     learningRate = alp
                     learningRateDecrease = aD
@@ -148,45 +147,26 @@ for h in hiddenLayers:
                         for step in range(200):
                             #env.render()
 
-
-
                             #oldOldObs = oldObs
                             oldObs = obs
                             obs, reward, done, info = env.step((a)) # take a random action
 
                             state[0,0:4] = obs
-                            oldState[0,0:4] = oldObs
-
                             #state[0,5:9] = oldObs
                             #state[0,9:13] = oldOldObs
 
                             if done: reward = -1
 
-                            alphaDecreaseB = False
-                            if reward > 1:
-                                alphaDecreaseB = True
-
                             #averageReward += reward
-                            oldState[0,4] = a
-                            # print("OldState")
-                            # print(oldState)
-                            newReward = 0
-                            if reward > 0:
-                                newReward = 0
-                            out = rnn.RNNSendInData([oldState[0]], newReward, alphaDecreaseB)
 
                             rewardSum += reward
 
-
-
                             for i in range(2):
                                 state[0,4] = i
-
-                                ##nn.setData(state,reward) // old state/ reward?
-                                rewardDelta[i] = rnn.ForwardCleanThrough([state[0]])
+                                nn.setData(state,reward)
+                                rewardDelta[i] = nn.train(1,learningRate)
 
                             a = round(float(np.argmax(rewardDelta)))
-
 
                             if done or step >= 199:
 
