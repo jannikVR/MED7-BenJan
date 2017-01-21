@@ -34,6 +34,34 @@ class Gridworld():
         self.trapR = _trapReward
         self.standardR = _standardReward
 
+    def performAction(self, currentPos, actionNr): # 0 = L,  1 = U, 2 = R, 3 = D
+
+        #new position
+        newPos = currentPos
+        if actionNr == 0: # L
+            if currentPos[0] - 1 >= 0:
+                newPos = (currentPos[0] - 1, currentPos[1])
+
+        if actionNr == 1: # U
+            if currentPos[1] - 1 >= 0:
+                newPos = (currentPos[0], currentPos[1] - 1)
+
+        if actionNr == 2: # R
+            if currentPos[0] + 1 < envDim[0]:
+                newPos = (currentPos[0] + 1, currentPos[1])
+
+        if actionNr == 3: # D
+            if currentPos[1] + 1 < envDim[1]:
+                newPos = (currentPos[0], currentPos[1] + 1)
+
+        #reward
+        reward = self.getReward(newPos)
+        if reward != self.standardR:     # if hit trap or goal
+            newPos = self.startTile      # move to start
+
+        return newPos, reward
+
+
 
     def getReward(self, tilePosition):
         # check if position = goal/trap/blank
@@ -164,7 +192,7 @@ class Gridworld():
 
 
 # env setup
-tileSize = 90
+tileSize = 50
 envDim = 15, 11
 startTile = 0, int((envDim[1]-1)/2)          # auto
 endTile = envDim[0]-1, int((envDim[1]-1)/2)  # auto
@@ -200,6 +228,17 @@ while active:
                 gworld.update(x, y, qvalues)        # update
 
         gworld.doneUpdating()                       # stop updating
+
+
+        # test
+        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 0)) # L
+        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 1)) # U
+        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 2)) # R
+        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 3)) # D
+
+
+
+
         updateEnv = False
 
 
