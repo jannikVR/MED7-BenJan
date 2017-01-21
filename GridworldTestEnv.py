@@ -218,8 +218,8 @@ class Gridworld():
 
 
 # env setup
-tileSize = 20
-envDim = 35, 21
+tileSize = 50
+envDim = 12, 8
 startTile = 0, int((envDim[1]-1)/2)          # auto
 endTile = envDim[0]-1, int((envDim[1]-1)/2)  # auto
 trapTiles = [(3,1), (4,5), (9,0)]
