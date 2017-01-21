@@ -34,6 +34,9 @@ class Gridworld():
         self.trapR = _trapReward
         self.standardR = _standardReward
 
+        # saved player data
+        self.playerPos = (-1,-1)
+
     def performAction(self, currentPos, actionNr): # 0 = L,  1 = U, 2 = R, 3 = D
 
         #new position
@@ -58,6 +61,8 @@ class Gridworld():
         reward = self.getReward(newPos)
         if reward != self.standardR:     # if hit trap or goal
             newPos = self.startTile      # move to start
+
+        self.playerPos = newPos
 
         return newPos, reward
 
@@ -84,6 +89,7 @@ class Gridworld():
     def doneUpdating(self):                             # after all q-values are updated
         self.drawGrid()
         self.drawStandardTiles()
+        self.drawMyPos(self.playerPos)
         pygame.display.flip()
 
     def drawState(self, posX, posY, qvalues, size):
@@ -149,8 +155,8 @@ class Gridworld():
         else:
             averageval *= 255 * -1  # into color
             col = (255, 255 - averageval, 255 - averageval)
-        sn = 2 # square size number
-        pygame.draw.rect(self.window, col, (posX + size/2 - size/sn/2, posY + size/2 - size/sn/2, size/sn, size/sn ), 0)
+        sn = 0.5 # square size number
+        pygame.draw.rect(self.window, col, (posX + size*0.5 - size*sn*0.5, posY + size*0.5 - size*sn*0.5, size*sn, size*sn ), 0)
 
     def drawStandardTiles(self):
         # standard tile properties
@@ -188,6 +194,24 @@ class Gridworld():
             pygame.draw.line(self.window, color, (0, y * self.sqSize), (envDim[0] * self.sqSize, y * self.sqSize),
                              width)
 
+    def drawMyPos(self, position):
+
+        size = self.sqSize
+        col1 = (0, 0, 255)
+        col2 = (80, 80, 255)
+        col3 = (150, 150, 255)
+
+        pos = int(position[0]* self.sqSize + 0.5*size), int(position[1]* self.sqSize + 0.5*size)
+
+        sn = 0.5  # square size number
+        pygame.draw.circle(self.window, col1, pos, int(size * sn), 0)
+
+        sn = 0.375  # square size number
+        pygame.draw.circle(self.window, col2, pos, int(size * sn), 0)
+
+        sn = 0.2  # square size number
+        pygame.draw.circle(self.window, col3, pos, int(size * sn), 0)
+
 #--------------------------------------------
 
 
@@ -213,7 +237,7 @@ while active:
 
     # update Env
     if updateEnv:
-
+        print(gworld.performAction((envDim[0] - 2, int((envDim[1] - 1) / 2)), 0))  # L
         gworld.startUpdating()                       # start updating
 
         for x in range(envDim[0]):                   # for each state
