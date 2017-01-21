@@ -41,6 +41,7 @@ class Gridworld():
 
     def performAction(self, currentPos, actionNr): # 0 = L,  1 = U, 2 = R, 3 = D
 
+        repositioned = False
         #new position
         newPos = currentPos
         if actionNr == 0: # L
@@ -63,10 +64,11 @@ class Gridworld():
         reward = self.__getReward(newPos)
         if reward != self.__standardR:     # if hit trap or goal
             newPos = self.__startTile      # move to start
+            repositioned = True
 
         self.__playerPos = newPos
 
-        return newPos, reward
+        return newPos, reward, repositioned
 
     def startUpdating(self):                            # before uodating q-values
         self.__window.fill(self.__backgroundC)
@@ -216,8 +218,8 @@ class Gridworld():
 
 
 # env setup
-tileSize = 50
-envDim = 15, 11
+tileSize = 20
+envDim = 35, 21
 startTile = 0, int((envDim[1]-1)/2)          # auto
 endTile = envDim[0]-1, int((envDim[1]-1)/2)  # auto
 trapTiles = [(3,1), (4,5), (9,0)]
