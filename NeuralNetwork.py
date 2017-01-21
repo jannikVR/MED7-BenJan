@@ -52,7 +52,7 @@ class NeuralNetwork():
 
             self.__outputNeuronValues = sigmoid(np.dot(self.__hiddenNeuronValues[self.__layers - 3,:,:],self.__outputWeights))
 
-            self.__outputErrors = self.__outputData - self.__outputNeuronValues
+            self.__outputErrors = (self.__outputData - self.__outputNeuronValues)
 
             self.__outputDelta = self.__outputErrors * sigmoid(self.__outputNeuronValues,derivative=True)
 
