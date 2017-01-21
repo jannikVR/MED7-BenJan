@@ -11,7 +11,7 @@ class NeuralNetwork():
 
     def __init__(self, numberOfDatasets, inputs, hiddenLayers, neuronsPrHiddenLayer, outputs):
 
-        np.random.seed(1)
+        #np.random.seed(1)
 
         self.__nInputs = inputs
         self.__nOutputs = outputs
