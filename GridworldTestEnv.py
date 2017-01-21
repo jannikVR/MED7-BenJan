@@ -17,13 +17,15 @@ class Gridworld():
         self.startTile = _startTile
         self.endTiles = _endTiles       # only one now
         self.trapTiles = _trapTiles     # only more than one now
-        self.screensize = self.sqSize*self.envDim[0], self.sqSize*self.envDim[1]
+
 
         #colours
         self.backgroundC = (255,255,255)
         self.lineC = (10,10,10)
 
         #setup window
+        self.buttomMargen = 100
+        self.screensize = self.sqSize * self.envDim[0], self.sqSize * self.envDim[1] + self.buttomMargen
         self.window = pygame.display.set_mode(self.screensize)
         pygame.display.set_caption("gridworld")
         pygame.font.Font(None, 25)
@@ -35,7 +37,7 @@ class Gridworld():
         self.standardR = _standardReward
 
         # saved player data
-        self.playerPos = (-1,-1)
+        self.playerPos = self.startTile
 
     def performAction(self, currentPos, actionNr): # 0 = L,  1 = U, 2 = R, 3 = D
 
@@ -237,7 +239,7 @@ while active:
 
     # update Env
     if updateEnv:
-        print(gworld.performAction((envDim[0] - 2, int((envDim[1] - 1) / 2)), 0))  # L
+        # gworld.performAction((envDim[0] - 2, int((envDim[1] - 1) / 2)), 0)  # L
         gworld.startUpdating()                       # start updating
 
         for x in range(envDim[0]):                   # for each state
@@ -255,10 +257,10 @@ while active:
 
 
         # test
-        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 0)) # L
-        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 1)) # U
-        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 2)) # R
-        print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 3)) # D
+        # print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 0)) # L
+        # print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 1)) # U
+        # print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 2)) # R
+        # print(gworld.performAction((envDim[0]-2, int((envDim[1]-1)/2)), 3)) # D
 
 
 
