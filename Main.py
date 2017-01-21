@@ -39,7 +39,7 @@ bestReward = 0
 rewardStreak = 0
 bestRewardStreak = 0
 averageReward = 0
-
+averageError = 0
 learningRate = 2
 render = False
 
