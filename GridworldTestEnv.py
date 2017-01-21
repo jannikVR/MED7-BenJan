@@ -28,7 +28,7 @@ class Gridworld():
         self.__screensize = self.__sqSize * self.__envDim[0], self.__sqSize * self.__envDim[1] + self.__buttomMargen
         self.__window = pygame.display.set_mode(self.__screensize)
         pygame.display.set_caption("gridworld")
-        pygame.font.Font(None, 25)
+        self.__font = pygame.font.Font(None, 25)
         self.__window.fill(self.__backgroundC)
 
         # rewards setup
@@ -38,6 +38,7 @@ class Gridworld():
 
         # saved player data
         self.__playerPos = self.__startTile
+        self.__nSteps = 0
 
     def performAction(self, currentPos, actionNr): # 0 = L,  1 = U, 2 = R, 3 = D
 
@@ -68,6 +69,7 @@ class Gridworld():
 
         self.__playerPos = newPos
 
+        self.__nSteps += 1
         return newPos, reward, repositioned
 
     def startUpdating(self):                            # before uodating q-values
@@ -81,6 +83,9 @@ class Gridworld():
         self.__drawGrid()
         self.__drawStandardTiles()
         self.__drawMyPos(self.__playerPos)
+
+        # self.__drawStads("hello", (100, self.__envDim[2]*self.__sqSize - 20))
+
         pygame.display.flip()
 
     def __getReward(self, tilePosition):
@@ -214,12 +219,17 @@ class Gridworld():
         sn = 0.2  # square size number
         pygame.draw.circle(self.__window, col3, pos, int(size * sn), 0)
 
+    def __drawStads(self, message, position, color):
+        text = self.__font.render(message, True, color)
+        self.__window.blit(text, position)                  #?? hvorfor ingen blit?
+
+
 #--------------------------------------------
 
 
 # env setup
-tileSize = 50
-envDim = 12, 8
+tileSize = 30
+envDim = 50, 30
 startTile = 0, int((envDim[1]-1)/2)          # auto
 endTile = envDim[0]-1, int((envDim[1]-1)/2)  # auto
 trapTiles = [(3,1), (4,5), (9,0)]
@@ -229,17 +239,35 @@ gworld = Gridworld(tileSize, envDim, startTile, endTile, trapTiles)
 
 active = True
 updateEnv = True
+dirToGo = 0
+curpos = startTile
 while active:
+
+
 
     # if QUIT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             active = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                dirToGo = 0
+                updateEnv = True
+            if event.key == pygame.K_UP:
+                dirToGo = 1
+                updateEnv = True
+            if event.key == pygame.K_RIGHT:
+                dirToGo = 2
+                updateEnv = True
+            if event.key == pygame.K_DOWN:
+                dirToGo = 3
+                updateEnv = True
+
 
 
     # update Env
     if updateEnv:
-        # gworld.performAction((envDim[0] - 2, int((envDim[1] - 1) / 2)), 0)  # L
+        curpos, reward, repositioned = gworld.performAction(curpos, dirToGo)  # L
         gworld.startUpdating()                       # start updating
 
         for x in range(envDim[0]):                   # for each state
