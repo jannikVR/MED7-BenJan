@@ -6,6 +6,7 @@ from colorama import Fore
 import PerformanceView
 import pygame
 import random
+from SimpleEnv import SimpleEnv
 
 # pygame.init()
 # pygame.display.set_caption("Stats")
@@ -15,22 +16,23 @@ import random
 # frameRate = 60
 # clock = pygame.time.Clock()
 
-env = gym.make('CartPole-v0')
-env.reset()
-print(env.action_space)
-print(env.observation_space)
+env = SimpleEnv(0.05, False)
+# env = gym.make('CartPole-v0')
+# env.reset()
+# print(env.action_space)
+# print(env.observation_space)
 
 action = [0]
 qvals  = np.zeros((2))
 newQvals  = np.zeros((2))
 
-action[0] = env.action_space.sample()
+action[0] = 1
 
 inputs = 5
 
 state = np.zeros((1,inputs))
 
-env.reset()
+# env.reset()
 
 a = 0
 
